@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Simple Nametag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @page {
+        size: 6.3cm 8.2cm; /* Match exact dimensions for PDF */
+        margin: 0;
+      }
+
+      /* Fix centering for PDF output */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        color: var(--text);
+        text-align: center;
+        /* Remove vertical centering that can cause issues */
+      }
+
+      .nametag {
+        width: 6.3cm;
+        height: 8.2cm;
+        box-sizing: border-box;
+        padding: 0.5cm;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        /* Remove transform and margin-top that's causing positioning issues */
+      }
+
+      .logo-wrap {
+        position: absolute;
+        top: 0.2cm;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .logo-img {
+        height: 1.1cm;
+        display: block;
+      }
+
+      .logo-placeholder {
+        height: 1.1cm;
+        width: 1.1cm;
+        background: var(--border);
+        color: var(--muted);
+        font-size: 8pt;
+        text-transform: uppercase;
+        line-height: 1.1cm;
+        text-align: center;
+      }
+
+      .content {
+        padding-top: 1.8cm;
+        text-align: center;
+      }
+
+      .event-name {
+        font-family: Montserrat, sans-serif;
+        font-size: 8.5pt;
+        line-height: 1.2;
+        color: var(--brand);
+        margin-bottom: 0.3cm;
+      }
+
+      .receiver-name {
+        font-family: Montserrat, Inter, sans-serif;
+        font-size: 26pt;
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 1.02;
+        margin: 0.5cm 0;
+      }
+
+      .receiver-name #last-name {
+        margin-top: 0.2cm;
+        font-size: smaller;
+        display: block;
+      }
+
+      .role-badge {
+        color: var(--brand);
+        border-color: var(--brand);
+        font-family: Montserrat, Inter, sans-serif;
+        font-weight: 600;
+        font-size: 9pt;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--brand);
+        display: inline-block;
+        margin: 0.2cm 0 0.4cm 0;
+      }
+
+      .divider {
+        width: 60%;
+        height: 0;
+        border: 0;
+        border-top: 2pt solid var(--brand);
+        background: transparent;
+        margin: 0.1cm auto 0.25cm auto;
+      }
+
+      footer {
+        text-align: center;
+      }
+
+      .date-location {
+        font-size: 8pt;
+      }
+
+      @media print {
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div
+      class="nametag"
+      role="article"
+      aria-label="Conference attendee nametag"
+    >
+      <div class="logo-wrap">
+        {% if logo_url %}
+        <img src="{{ logo_url }}" alt="Organization logo" class="logo-img" />
+        {% else %}
+        <div class="logo-placeholder">Logo</div>
+        {% endif %}
+      </div>
+
+      <div class="content">
+        <div class="event-name">{{ event_name }}</div>
+
+        <h1 class="receiver-name" aria-label="Participant name">
+          <span id="first-name">{{ first_name }}</span>
+          <span id="last-name">{{ last_name }}</span>
+        </h1>
+
+        <div class="role-badge role-attendee" id="role" aria-label="Role">
+          {{ role }}
+        </div>
+
+        <footer>
+          <div class="divider" aria-hidden="true"></div>
+
+          <div class="date-location">
+            {% if dates %}<span id="date">{{ dates }}</span>{% endif %} {% if
+            dates and location %} • {% endif %} {% if location %}<span
+              id="location"
+              >{{ location }}</span
+            >{% endif %}
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

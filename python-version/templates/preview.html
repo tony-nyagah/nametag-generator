@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nametag Preview</title>
+    <style>
+      body {
+        margin: 20px;
+        padding: 20px;
+        height: 100vh;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+
+      .preview-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .nametag-preview {
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .controls {
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .download-btn {
+        background-color: #ffbf47;
+        color: #232323;
+        border: 2px solid #232323;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 3px 3px 0 #232323;
+      }
+
+      .download-btn:hover {
+        background-color: #ffd077;
+        position: relative;
+        top: -2px;
+        left: -2px;
+        box-shadow: 5px 5px 0 #232323;
+      }
+
+      .download-btn svg {
+        vertical-align: middle;
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-container">
+      <div class="nametag-preview">{{ html_content|safe }}</div>
+
+      <div class="controls">
+        <a href="{{ pdf_url }}" class="download-btn" download>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 3v4a1 1 0 001 1h4"></path>
+            <path
+              d="M17 21h-10a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"
+            ></path>
+            <path d="M12 17v-6"></path>
+            <path d="M9 14l3 3 3-3"></path>
+          </svg>
+          Download PDF
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

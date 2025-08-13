@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -24,6 +27,7 @@ var indexTmpl = template.Must(template.New("index").Parse(`
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <style>
         :root {
             --primary: #FF5470;
@@ -209,6 +213,7 @@ var indexTmpl = template.Must(template.New("index").Parse(`
             align-items: center;
             justify-content: center;
             padding: 20px;
+			margin-bottom: 30px;
         }
         
         .preview-placeholder {
@@ -222,6 +227,27 @@ var indexTmpl = template.Must(template.New("index").Parse(`
             margin-bottom: 20px;
             opacity: 0.5;
         }
+        
+        .template-preview {
+            position: relative;
+        }
+        
+        .htmx-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .loading-spinner {
+            width: 38px;
+            height: 38px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -231,7 +257,7 @@ var indexTmpl = template.Must(template.New("index").Parse(`
         <div>
             <div class="card">
                 <div class="card-title">Create Your Nametag</div>
-                <form id="nametag-form" action="/generate" method="post" target="_blank">
+                <form id="nametag-form" hx-post="/generate" hx-target="#preview-content" hx-trigger="submit, change from:#template" hx-indicator=".htmx-indicator" hx-swap="innerHTML">
                     <div class="field">
                         <label for="template">Choose Template:</label>
                         <select name="template" id="template" required>
@@ -277,8 +303,10 @@ var indexTmpl = template.Must(template.New("index").Parse(`
                     </div>
                     
                     <div class="actions">
-                        <button type="button" id="preview-btn" onclick="updatePreview()">Preview</button>
-                        <button type="submit">Generate Printable</button>
+                        <button type="submit" style="background: var(--secondary);">Preview</button>
+                        <a href="/generate" target="_blank" class="printable-btn" style="display:none;" id="print-link">
+                            <button type="button">Generate Printable</button>
+                        </a>
                     </div>
                 </form>
             </div>
@@ -286,14 +314,29 @@ var indexTmpl = template.Must(template.New("index").Parse(`
         
         <div>
             <div class="template-preview">
-                <iframe id="preview-frame" style="display:none; width:100%; height:100%; border:none;"></iframe>
-                <div class="preview-placeholder" id="preview-placeholder">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21 15 16 10 5 21"></polyline>
-                    </svg>
-                    <p>Click "Preview" to see<br>your nametag</p>
+                <div id="preview-content">
+                    <div class="preview-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <p>Fill in the form and click "Preview"<br>to see your nametag</p>
+                    </div>
+                </div>
+                <div class="htmx-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div class="loading-spinner">
+                        <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="var(--secondary)">
+                            <g fill="none" fill-rule="evenodd">
+                                <g transform="translate(1 1)" stroke-width="2">
+                                    <circle stroke-opacity=".5" cx="18" cy="18" r="18"/>
+                                    <path d="M36 18c0-9.94-8.06-18-18-18">
+                                        <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/>
+                                    </path>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
             </div>
             
@@ -316,49 +359,7 @@ Content-Type: application/json
         </div>
     </div>
     
-    <script>
-        function updatePreview() {
-            const form = document.getElementById('nametag-form');
-            const previewFrame = document.getElementById('preview-frame');
-            const placeholder = document.getElementById('preview-placeholder');
-            
-            // Get form data
-            const formData = new FormData(form);
-            
-            // Convert form data to URL params
-            const urlParams = new URLSearchParams();
-            for (const pair of formData.entries()) {
-                urlParams.append(pair[0], pair[1]);
-            }
-            
-            // Check if required fields are filled
-            const requiredFields = ['eventName', 'firstName', 'lastName', 'role'];
-            let missingFields = false;
-            
-            for (const field of requiredFields) {
-                if (!formData.get(field)) {
-                    missingFields = true;
-                    const inputField = document.getElementById(field);
-                    inputField.classList.add('error');
-                    setTimeout(() => {
-                        inputField.classList.remove('error');
-                    }, 2000);
-                }
-            }
-            
-            if (missingFields) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            // Show loading state
-            placeholder.style.display = 'none';
-            previewFrame.style.display = 'block';
-            
-            // Set the iframe src to the generate endpoint with form data
-            previewFrame.src = '/generate?' + urlParams.toString();
-        }
-    </script>
+    <!-- HTMX handles the interaction -->
 </body>
 </html>
 `))
@@ -460,9 +461,91 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	// Get and execute template
 	tmpl := getTemplate(templateName)
 	w.Header().Set("Content-Type", "text/html")
-	if err := tmpl.Execute(w, data); err != nil {
-		log.Printf("Error rendering nametag template %s: %v", templateName, err)
-		http.Error(w, "Error generating nametag", http.StatusInternalServerError)
+
+	// Check if this is an HTMX request or a direct page load
+	isHtmx := r.Header.Get("HX-Request") == "true"
+	isPrintable := r.URL.Query().Get("printable") == "true"
+
+	if isHtmx {
+		// HTMX request - render template with print button
+		// First, generate the nametag
+		var nametagHTML bytes.Buffer
+		if err := tmpl.Execute(&nametagHTML, data); err != nil {
+			log.Printf("Error rendering nametag template %s: %v", templateName, err)
+			http.Error(w, "Error generating nametag", http.StatusInternalServerError)
+			return
+		}
+
+		// Create a wrapper with the nametag and print controls
+		printURL := fmt.Sprintf("/generate?template=%s&logoUrl=%s&eventName=%s&firstName=%s&lastName=%s&role=%s&dates=%s&location=%s&printable=true",
+			url.QueryEscape(templateName),
+			url.QueryEscape(data.LogoURL),
+			url.QueryEscape(data.EventName),
+			url.QueryEscape(data.FirstName),
+			url.QueryEscape(data.LastName),
+			url.QueryEscape(data.Role),
+			url.QueryEscape(data.Dates),
+			url.QueryEscape(data.Location),
+		)
+
+		// Render the preview with print controls
+		fmt.Fprintf(w, `<div class="preview-nametag">%s</div>
+			<div class="preview-controls" style="position:absolute; bottom:15px; left:0; right:0; text-align:center;">
+				<a href="%s" target="_blank">
+					<button style="background: var(--success); width: auto; padding: 10px 20px; display:inline-flex; align-items:center; gap:8px;">
+						<svg style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="6 9 6 2 18 2 18 9"></polyline>
+							<path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path>
+							<rect x="6" y="14" width="12" height="8"></rect>
+						</svg>
+						Print Version
+					</button>
+				</a>
+			</div>`, nametagHTML.String(), printURL)
+
+		// Also update the form's print button URL
+		fmt.Fprintf(w, `<script>
+			document.getElementById("print-link").href = "%s";
+			document.getElementById("print-link").style.display = "block";
+		</script>`, printURL)
+	} else if isPrintable {
+		// Print-ready version with minimal page setup
+		fmt.Fprintf(w, `<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="utf-8">
+			<title>Print: %s %s - %s</title>
+			<style>
+				@page { size: 6.3cm 8.2cm; margin: 0; }
+				body { margin: 0; display: flex; justify-content: center; align-items: center; }
+				@media print {
+					* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+				}
+			</style>
+		</head>
+		<body>`, data.FirstName, data.LastName, data.Role)
+
+		if err := tmpl.Execute(w, data); err != nil {
+			log.Printf("Error rendering printable template %s: %v", templateName, err)
+			http.Error(w, "Error generating printable nametag", http.StatusInternalServerError)
+			return
+		}
+
+		// Add auto-print script
+		fmt.Fprintf(w, `
+		<script>
+			window.onload = function() {
+				window.print();
+			}
+		</script>
+		</body>
+		</html>`)
+	} else {
+		// Direct GET request, just render the template
+		if err := tmpl.Execute(w, data); err != nil {
+			log.Printf("Error rendering nametag template %s: %v", templateName, err)
+			http.Error(w, "Error generating nametag", http.StatusInternalServerError)
+		}
 	}
 }
 

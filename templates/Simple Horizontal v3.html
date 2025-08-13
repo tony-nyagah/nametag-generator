@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>HuQAS Nametag — Attendee (24th)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <style>
+    @page {
+      size: 6.3cm 8.5cm;
+      margin: 0;
+    }
+
+    :root {
+      --brand: #7e287b;
+      --brand-2: #231f54;
+      --brand-3: #663c96;
+      --text: #111;
+      --muted: #555;
+      --border: #d9d9d9;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--text);
+    }
+
+    .nametag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 6.3cm;
+      height: 8.2cm;
+      border: 1px solid var(--border);
+      box-sizing: border-box;
+      padding: 0.5cm;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-wrap {
+      display: flex;
+      position: absolute;
+      top: 0.2cm;
+    }
+    .logo-img {
+      display: flex;
+      height: 1.1cm;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .event-name {
+      font-family: Montserrat, sans-serif;
+      font-size: 8.5pt;
+      line-height: 1.2;
+      color: var(--brand);
+    }
+    .receiver-name {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5cm;
+      font-family: Montserrat, Inter, sans-serif;
+      font-size: 26pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.02;
+    }
+    .role-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      border-color: var(--brand);
+      font-family: Montserrat, Inter, sans-serif;
+      font-weight: 600;
+      font-size: 9pt;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--brand);
+    }
+    .date-location {
+      font-size: 8pt;
+    }
+
+    .divider {
+      width: 60%;
+      height: 0; /* use border for reliable print */
+      border: 0;
+      border-top: 2pt solid var(--brand);
+      background: transparent;
+      margin: 0.1cm 0 0.25cm;
+    }
+
+    footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: 0.25cm;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+
+  <body>
+    <div
+      class="nametag"
+      role="article"
+      aria-label="HuQAS Conference attendee nametag"
+    >
+      <div class="logo-wrap">
+        <img
+          src="https://huqas.org/img/logo.be9a9e46.png"
+          alt="HuQAS logo"
+          class="logo-img"
+        />
+      </div>
+
+      <div class="content">
+        <div class="event-name">24th Annual HuQAS Scientific Conference</div>
+
+        <h1 class="receiver-name" aria-label="Participant name">
+          <span id="first-name">Jane</span>
+          <span id="last-name">Doe</span>
+        </h1>
+
+        <div class="role-badge role-attendee" id="role" aria-label="Role">
+          Attendee
+        </div>
+
+        <footer>
+          <div class="divider" aria-hidden="true"></div>
+
+          <div class="date-location">
+            <span id="date">21 - 22 August 2025 •</span>
+            <span id="location">Nairobi, Kenya</span>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

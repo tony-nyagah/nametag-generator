@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>HuQAS Nametag — Attendee (24th)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @page {
+        size: 5.4cm 8.5cm;
+        margin: 0;
+      }
+
+      :root {
+        --brand: #7e287b;
+        --brand-2: #231f54;
+        --brand-3: #663c96;
+        --text: #111;
+        --muted: #555;
+        --border: #d9d9d9;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: #f4f6f8; /* preview only */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        color: var(--text);
+      }
+
+      .nametag {
+        width: 6.3cm;
+        height: 8.2cm;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-sizing: border-box;
+        padding: 0.5cm;
+        position: relative;
+        overflow: hidden;
+      }
+      .ribbon {
+        position: absolute;
+        top: 0.2cm;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 0.9cm;
+      }
+      .logo-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        background: transparent;
+        padding: 0;
+      }
+      .logo-img {
+        height: 0.9cm;
+        width: auto;
+      }
+      .brand-text {
+        font-family: Montserrat, Inter, sans-serif;
+        font-weight: 800;
+        font-size: 11pt;
+        letter-spacing: 0.2px;
+        color: var(--brand);
+      }
+
+      .content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-top: 1.15cm; /* push below ribbon */
+        box-sizing: border-box;
+      }
+
+      .event {
+        font-weight: 700;
+        font-size: 8.5pt;
+        color: var(--brand);
+        line-height: 1.15;
+      }
+
+      .name {
+        margin: 0.2cm 0 0.2cm;
+        font-family: Montserrat, Inter, sans-serif;
+        font-weight: 800;
+        font-size: 26pt; /* main focus */
+        line-height: 1.02;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: var(--text);
+      }
+      .name .given,
+      .name .family {
+        display: block;
+      }
+
+      .divider {
+        width: 60%;
+        height: 2px;
+        background: var(--brand);
+        margin: 0.1cm 0 0.25cm;
+      }
+
+      .meta {
+        font-size: 8pt;
+        color: #333;
+        line-height: 1.25;
+      }
+      .meta .location {
+        color: var(--brand);
+        font-weight: 600;
+      }
+
+      /* Footer info (website) sits just above the role badge */
+      .footer {
+        position: absolute;
+        left: 0.5cm;
+        right: 0.5cm;
+        bottom: 0.85cm;
+        text-align: center;
+        font-size: 7.5pt;
+        color: #333;
+      }
+
+      /* Role badge at bottom */
+      .role-badge {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0.3cm;
+        font-family: Montserrat, Inter, sans-serif;
+        font-weight: 700;
+        font-size: 10pt;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--brand);
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid #6d226a;
+      }
+      .role-badge {
+        background: #fff;
+        color: var(--brand);
+        border-color: var(--brand);
+      }
+      .role-badge.role-speaker {
+        color: var(--brand-2);
+        border-color: var(--brand-2);
+      }
+      .role-badge.role-sponsor {
+        color: var(--brand-3);
+        border-color: var(--brand-3);
+      }
+
+      /* Optional solid variant (use .solid-badge together with role class) */
+      .role-badge.solid-badge {
+        color: #fff;
+        background: var(--brand);
+        border-color: var(--brand);
+      }
+      .role-badge.solid-badge.role-speaker {
+        background: var(--brand-2);
+        border-color: var(--brand-2);
+      }
+      .role-badge.solid-badge.role-sponsor {
+        background: var(--brand-3);
+        border-color: var(--brand-3);
+      }
+
+      /* Remove non-print-friendly effects */
+      .logo-wrap {
+        box-shadow: none;
+        background: transparent;
+        padding: 0;
+      }
+
+      /* Print-optimized palette and components */
+      body {
+        background: #fff;
+      }
+      .divider {
+        background: var(--brand);
+      }
+      .meta {
+        color: #333;
+      }
+
+      @media print {
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="nametag"
+      role="article"
+      aria-label="HuQAS Conference attendee nametag"
+    >
+      <div class="ribbon" aria-hidden="true">
+        <div class="logo-wrap">
+          <img
+            class="logo-img"
+            src="https://huqas.org/img/logo.be9a9e46.png"
+            alt="HuQAS logo"
+          />
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="event">24th Annual HuQAS Scientific Conference</div>
+
+        <h1 class="name" aria-label="Participant name">
+          <span class="given" id="firstName">Jane</span>
+          <span class="family" id="lastName">Doe</span>
+        </h1>
+
+        <div class="divider" aria-hidden="true"></div>
+
+        <div class="meta">
+          21 - 22 August 2025 • <span class="location">Nairobi, Kenya</span>
+        </div>
+      </div>
+
+      <div class="role-badge role-attendee" id="role" aria-label="Role">
+        Attendee
+      </div>
+      <!-- To switch role color in Go, toggle classes: role-attendee (default brand), role-speaker (brand-2), role-sponsor (brand-3). Add solid-badge for filled style. -->
+    </div>
+  </body>
+</html>
