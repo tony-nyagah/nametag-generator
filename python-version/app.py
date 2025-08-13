@@ -2,7 +2,7 @@
 import os
 import json
 from typing import Optional, List
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from fastapi import FastAPI, Request, Form, File, UploadFile, Query
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from weasyprint import HTML, CSS
 from io import BytesIO
+import requests
+import base64
 
 # Create FastAPI app
 app = FastAPI(
@@ -64,10 +66,23 @@ body {
   margin: 0;
   padding: 0.5cm;
   background: #fff;
+  position: relative;
+}
+
+.logo-wrap {
+  text-align: center;
+  margin-bottom: 0.3cm;
+}
+
+.logo-img {
+  height: 1.1cm;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .event-name {
   color: var(--brand);
+  font-weight: bold;
 }
 
 .role-badge {
@@ -81,6 +96,14 @@ body {
 
 .date-location .location {
   color: var(--brand);
+}
+
+.receiver-name {
+  font-size: 26pt;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.02;
+  margin: 0.5cm 0;
 }
 """
 
@@ -128,6 +151,35 @@ def get_available_templates():
     return templates or [DEFAULT_TEMPLATE]
 
 
+def get_image_as_base64(url):
+    """Convert an image URL to a base64 data URI for embedding in HTML."""
+    try:
+        if not url:
+            return None
+
+        # Check if it's already a data URI
+        if url.startswith("data:"):
+            return url
+
+        # Check if it's a valid URL
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            return None
+
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+
+        # Get content type from response
+        content_type = response.headers.get("Content-Type", "image/png")
+
+        # Convert to base64
+        img_data = base64.b64encode(response.content).decode("utf-8")
+        return f"data:{content_type};base64,{img_data}"
+    except Exception as e:
+        print(f"Error fetching image from {url}: {e}")
+        return None
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Render home page with form."""
@@ -150,8 +202,15 @@ async def preview(
     location: Optional[str] = Form(None),
 ):
     """Generate a preview of the nametag."""
+    print(f"Original logo URL: {logo_url}")
+
+    # Try to get the logo as base64 if a URL is provided
+    logo_data_uri = get_image_as_base64(logo_url) if logo_url else None
+
+    print(f"Converted to data URI: {'Yes' if logo_data_uri else 'No'}")
+
     data = {
-        "logo_url": logo_url or "",
+        "logo_url": logo_data_uri or logo_url or "",
         "event_name": event_name,
         "first_name": first_name,
         "last_name": last_name,
@@ -190,8 +249,11 @@ async def generate_pdf(
     location: Optional[str] = Query(None),
 ):
     """Generate a printable PDF version of the nametag."""
+    # Try to get the logo as base64 if a URL is provided
+    logo_data_uri = get_image_as_base64(logo_url) if logo_url else None
+
     data = {
-        "logo_url": logo_url or "",
+        "logo_url": logo_data_uri or logo_url or "",
         "event_name": event_name,
         "first_name": first_name,
         "last_name": last_name,
@@ -222,8 +284,11 @@ async def generate_pdf(
 @app.post("/api/generate")
 async def api_generate(nametag: NametagRequest):
     """API endpoint for generating PDFs programmatically."""
+    # Try to get the logo as base64 if a URL is provided
+    logo_data_uri = get_image_as_base64(nametag.logo_url) if nametag.logo_url else None
+
     data = {
-        "logo_url": nametag.logo_url or "",
+        "logo_url": logo_data_uri or nametag.logo_url or "",
         "event_name": nametag.event_name,
         "first_name": nametag.first_name,
         "last_name": nametag.last_name,

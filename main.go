@@ -228,10 +228,6 @@ var indexTmpl = template.Must(template.New("index").Parse(`
             opacity: 0.5;
         }
         
-        .template-preview {
-            position: relative;
-        }
-        
         .htmx-indicator {
             position: absolute;
             top: 50%;
