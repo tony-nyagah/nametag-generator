@@ -62,6 +62,17 @@
       display: flex;
       height: 1.1cm;
     }
+    .logo-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 1.1cm;
+      width: 1.1cm;
+      background: var(--border);
+      color: var(--muted);
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
 
     .content {
       display: flex;
@@ -144,31 +155,31 @@
       aria-label="HuQAS Conference attendee nametag"
     >
       <div class="logo-wrap">
-        <img
-          src="https://huqas.org/img/logo.be9a9e46.png"
-          alt="HuQAS logo"
-          class="logo-img"
-        />
+        {{if .LogoURL}}
+        <img src="{{.LogoURL}}" alt="Organization logo" class="logo-img" />
+        {{else}}
+        <div class="logo-placeholder">No Logo Available</div>
+        {{end}}
       </div>
 
       <div class="content">
-        <div class="event-name">24th Annual HuQAS Scientific Conference</div>
+        <div class="event-name">{{.EventName}}</div>
 
         <h1 class="receiver-name" aria-label="Participant name">
-          <span id="first-name">Antony</span>
-          <span id="last-name">Nyagah</span>
+          <span id="first-name">{{.FirstName}}</span>
+          <span id="last-name">{{.LastName}}</span>
         </h1>
 
         <div class="role-badge role-attendee" id="role" aria-label="Role">
-          Staff
+          {{.Role}}
         </div>
 
         <footer>
           <div class="divider" aria-hidden="true"></div>
 
           <div class="date-location">
-            <span id="date">21 - 22 August 2025 •</span>
-            <span id="location">Nairobi, Kenya</span>
+            <span id="date">{{.Dates}} •</span>
+            <span id="location">{{.Location}}</span>
           </div>
         </footer>
       </div>
